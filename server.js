@@ -39,7 +39,7 @@ const swaggerSpecs = swaggerJsdoc({
   swaggerDefinition: {
     openapi: "3.0.1",
     info: {
-      title: "Swyft API Docs",
+      title: "People API Docs",
       version: "1.0.0",
     },
     servers: [
