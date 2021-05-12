@@ -44,7 +44,7 @@ const swaggerSpecs = swaggerJsdoc({
     },
     servers: [
       {
-        url: "http://localhost:1337",
+        url: "https://ga-express-people-api.herokuapp.com/",
       },
     ],
     components: {
