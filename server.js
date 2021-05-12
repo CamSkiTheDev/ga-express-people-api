@@ -77,7 +77,7 @@ const mongoose = require("mongoose");
  * @const PORT
  * @type {number}
  */
-const PORT = process.env.port || 1337;
+const PORT = process.env.PORT || 1337;
 
 /**
  * express module
