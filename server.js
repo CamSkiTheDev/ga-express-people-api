@@ -18,6 +18,54 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 /**
+ * swagger/OpenAPI JSDoc module
+ * @const swaggerJsdoc
+ * @link https://github.com/Surnet/swagger-jsdoc
+ */
+const swaggerJsdoc = require("swagger-jsdoc");
+
+/**
+ * swaggerUI module
+ * @const swaggerUI
+ * @link https://github.com/scottie1984/swagger-ui-express
+ */
+const swaggerUI = require("swagger-ui-express");
+
+/**
+ * @const swaggerSpecs
+ * swagger/OpenAPI specs/options
+ */
+const swaggerSpecs = swaggerJsdoc({
+  swaggerDefinition: {
+    openapi: "3.0.1",
+    info: {
+      title: "Swyft API Docs",
+      version: "1.0.0",
+    },
+    servers: [
+      {
+        url: "http://localhost:1337",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./*.js"],
+});
+
+/**
  * mongoose module
  * @const mongoose
  * @type {object}
@@ -87,6 +135,20 @@ const PeopleSchema = new mongoose.Schema({
  */
 const People = mongoose.model("People", PeopleSchema);
 
+/**
+ * swaggerUI route for which serves out OpenAPI Docs
+ */
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpecs));
+
+/**
+ * @openapi
+ * /people:
+ *   get:
+ *     description: Gets an array of all people from the database
+ *     responses:
+ *       200:
+ *         description: Returns an array of people.
+ */
 app.get(
   "/people",
   /**
@@ -105,6 +167,28 @@ app.get(
   }
 );
 
+/**
+ * @openapi
+ * /people:
+ *   post:
+ *     description: Creates a new person adds it to the database
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *              image:
+ *                type: string
+ *              title:
+ *                type: string
+ *     responses:
+ *       200:
+ *         description: Returns the new person.
+ */
 app.post(
   "/people",
   /**
@@ -124,24 +208,56 @@ app.post(
 );
 
 /**
- * Controller which updates a person and returns the person to the client in JSON format
- * @function UPDATE_PERSON
- * @param {express.Request} req
- * @param {express.Response} res
- * @returns {void}
+ * @openapi
+ * /people/:id:
+ *   put:
+ *     description: Updates person and returns the updated person
+ *     parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: integer
+ *
+ *     responses:
+ *       200:
+ *         description: Returns the new person.
  */
-app.put("/people/:id", async (req, res) => {
-  try {
-    // send all people
-    res.json(
-      await People.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    );
-  } catch (error) {
-    //send error
-    res.status(400).json(error);
+app.put(
+  "/people/:id",
+  /**
+   * Controller which updates a person and returns the person to the client in JSON format
+   * @function UPDATE_PERSON
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @returns {void}
+   */
+  async (req, res) => {
+    try {
+      // send all people
+      res.json(
+        await People.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      );
+    } catch (error) {
+      //send error
+      res.status(400).json(error);
+    }
   }
-});
+);
 
+/**
+ * @openapi
+ * /people/:id:
+ *   delete:
+ *     description: Delets a person
+ *     parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: string
+ *     responses:
+ *       200:
+ *         description: Returns the new person.
+ */
 app.delete(
   "/people/:id",
   /**
